@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dota 2 · Steam Market — Топ-30 предметов</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Spectral:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --bg:#100c08;
+    --bg2:#171009;
+    --panel:#1c150d;
+    --panel-alt:#221a10;
+    --line:#3a2d1c;
+    --gold:#c9a24b;
+    --gold-bright:#e8c874;
+    --ember:#b5502e;
+    --text:#ece3d2;
+    --text-dim:#a9998079;
+    --text-dim2:#b7a688;
+    --common:#b0c3d9; --uncommon:#5e98d9; --rare:#4b69ff;
+    --mythical:#8847ff; --legendary:#d32ce6; --ancient:#eb4b4b; --immortal:#e4ae39;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(197,144,58,0.14), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 0%, rgba(120,40,30,0.16), transparent 55%),
+      var(--bg);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    line-height:1.5;
+  }
+  a{color:var(--gold-bright)}
+
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+
+  header.hero{
+    padding:64px 24px 40px;
+    border-bottom:1px solid var(--line);
+    position:relative;
+  }
+  .hero-inner{max-width:1180px;margin:0 auto;display:flex;justify-content:space-between;align-items:flex-end;gap:32px;flex-wrap:wrap}
+  .kicker{
+    font-family:'Spectral',serif;
+    font-style:italic;
+    color:var(--text-dim2);
+    font-size:15px;
+    margin:0 0 10px;
+  }
+  h1{
+    font-family:'Spectral',serif;
+    font-weight:700;
+    font-size:clamp(32px,5vw,52px);
+    line-height:1.06;
+    margin:0 0 14px;
+    color:var(--text);
+  }
+  h1 em{color:var(--gold-bright);font-style:normal}
+  .lede{max-width:560px;color:var(--text-dim2);font-size:16px;margin:0}
+
+  .control-card{
+    background:var(--panel);
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:18px 22px;
+    min-width:280px;
+  }
+  .control-card .stamp{font-size:12.5px;color:var(--text-dim2);margin-bottom:3px}
+  .control-card .stamp b{color:var(--text)}
+  #refresh-btn{
+    margin-top:12px;
+    width:100%;
+    background:linear-gradient(180deg,var(--gold-bright),var(--gold));
+    color:#241a0c;
+    border:none;
+    padding:12px 18px;
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:14.5px;
+    border-radius:7px;
+    cursor:pointer;
+    display:flex;align-items:center;justify-content:center;gap:9px;
+    transition:transform .12s ease, box-shadow .12s ease;
+    box-shadow:0 6px 18px rgba(201,162,75,0.18);
+  }
+  #refresh-btn:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(201,162,75,0.28)}
+  #refresh-btn:active{transform:translateY(0)}
+  #refresh-btn:disabled{opacity:.65;cursor:wait;transform:none}
+  .spinner{
+    width:15px;height:15px;border-radius:50%;
+    border:2.5px solid rgba(36,26,12,0.35);
+    border-top-color:#241a0c;
+    animation:spin .7s linear infinite;
+    display:none;
+  }
+  #refresh-btn.loading .spinner{display:inline-block}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  #status-line{margin-top:10px;font-size:12.5px;color:var(--text-dim2);min-height:16px}
+  #status-line.err{color:#e08a6f}
+  #status-line.ok{color:#9fd08a}
+
+  section.table-section{padding-top:36px}
+  .legend{
+    display:flex;gap:18px;flex-wrap:wrap;
+    font-size:12.5px;color:var(--text-dim2);
+    padding:0 2px 22px;border-bottom:1px solid var(--line);margin-bottom:24px;
+  }
+  .legend span{display:inline-flex;align-items:center;gap:6px}
+  .legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
+
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead th{
+    text-align:left;
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:12px;
+    letter-spacing:.02em;
+    color:var(--text-dim2);
+    padding:0 12px 12px;
+    border-bottom:1px solid var(--line);
+  }
+  th.num,td.num{text-align:right}
+  tbody tr{border-bottom:1px solid rgba(58,45,28,0.55)}
+  tbody tr:hover{background:rgba(201,162,75,0.045)}
+  td{padding:12px;vertical-align:middle}
+  td.rank{color:var(--text-dim2);font-variant-numeric:tabular-nums;width:28px}
+
+  .item-cell{display:flex;align-items:center;gap:12px;min-width:260px}
+  .thumb{
+    width:52px;height:52px;border-radius:6px;flex:none;
+    background:var(--panel-alt);
+    border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;position:relative;
+  }
+  .thumb img{width:100%;height:100%;object-fit:contain;background:#0c0a06}
+  .thumb .fallback-letter{font-family:'Spectral',serif;font-weight:700;font-size:18px;color:#0c0a06}
+  .item-name{font-weight:600;color:var(--text);font-size:14px;line-height:1.3}
+  .item-name a{color:inherit;text-decoration:none;border-bottom:1px dotted rgba(232,200,116,0.4)}
+  .item-name a:hover{color:var(--gold-bright)}
+  .item-sub{font-size:12px;color:var(--text-dim2);margin-top:2px}
+  .rarity-pill{
+    display:inline-block;padding:1px 7px;border-radius:100px;
+    font-size:10.5px;font-weight:600;margin-left:6px;
+    color:#0c0a06;
+  }
+
+  td.price{font-variant-numeric:tabular-nums;font-weight:700;color:var(--gold-bright);white-space:nowrap}
+  td.qty, td.sales{font-variant-numeric:tabular-nums;color:var(--text-dim2);white-space:nowrap}
+  td.sales .sales-num{color:var(--text);font-weight:600}
+  td.sales .sales-period{display:block;font-size:11px;color:var(--text-dim2)}
+  .live-dot{
+    display:inline-block;width:6px;height:6px;border-radius:50%;
+    background:#9fd08a;margin-left:6px;box-shadow:0 0 0 0 rgba(159,208,138,.5);
+  }
+  .live-dot.pulsing{animation:pulse 1.4s infinite}
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(159,208,138,.5)}
+    70%{box-shadow:0 0 0 6px rgba(159,208,138,0)}
+    100%{box-shadow:0 0 0 0 rgba(159,208,138,0)}
+  }
+  .na{color:#6f6250;font-style:italic}
+
+  footer.notes{
+    margin-top:48px;padding-top:28px;border-top:1px solid var(--line);
+    font-size:13.5px;color:var(--text-dim2);
+  }
+  footer.notes h2{
+    font-family:'Spectral',serif;font-weight:600;font-size:19px;color:var(--text);margin:0 0 14px;
+  }
+  footer.notes ul{padding-left:20px;margin:0}
+  footer.notes li{margin-bottom:10px}
+  footer.notes b{color:var(--text-dim2)}
+  footer.notes code{background:var(--panel-alt);padding:1px 6px;border-radius:4px;color:var(--gold-bright);font-size:12.5px}
+
+  /* ---------- Mobile layout ---------- */
+  @media (max-width:720px){
+    header.hero{padding:36px 16px 24px}
+    .hero-inner{gap:22px}
+    h1{font-size:clamp(26px,7vw,34px)}
+    .lede{font-size:14.5px}
+    .control-card{width:100%;min-width:0;padding:16px 18px}
+    .wrap{padding:0 14px 50px}
+
+    section.table-section{padding-top:26px}
+    .legend{gap:10px 14px;font-size:11.5px;padding-bottom:16px;margin-bottom:16px}
+
+    /* table -> stacked cards */
+    table, thead, tbody, tr, td{display:block}
+    table{font-size:13.5px}
+    thead{
+      position:absolute;width:1px;height:1px;overflow:hidden;
+      clip:rect(0 0 0 0);white-space:nowrap;
+    }
+    tbody tr{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:10px;
+      padding:14px 14px 6px;
+      margin-bottom:12px;
+      position:relative;
+    }
+    tbody tr:hover{background:var(--panel)}
+    td{padding:0;border:none}
+    td.rank{
+      position:absolute;top:12px;right:14px;
+      font-size:11.5px;color:var(--text-dim2);width:auto;
+      background:var(--panel-alt);border:1px solid var(--line);
+      border-radius:100px;padding:2px 8px;
+    }
+    td[data-label]{
+      display:flex;justify-content:space-between;align-items:baseline;
+      padding:8px 0;border-top:1px dashed rgba(58,45,28,0.6);
+    }
+    td[data-label]::before{
+      content:attr(data-label);
+      font-size:11px;color:var(--text-dim2);flex:none;margin-right:12px;
+    }
+    td.num{text-align:right}
+    .item-cell{min-width:0;padding-right:60px;margin-bottom:2px}
+    .item-name{font-size:14.5px}
+    td.sales{align-items:center}
+    td.sales .sales-period{display:inline;margin-left:5px}
+
+    footer.notes{font-size:13px;margin-top:36px;padding-top:22px}
+    footer.notes h2{font-size:17px}
+  }
+
+  @media (max-width:380px){
+    h1{font-size:24px}
+    .thumb{width:44px;height:44px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div>
+      <p class="kicker">Steam Community Market · appid 570</p>
+      <h1>Что игроки правда<br><em>покупают</em> в Dota 2</h1>
+      <p class="lede">Топ-30 предметов, созданных авторами Steam Workshop, отсортированные по цене — от дешёвых к дорогим. Данные можно обновить в любой момент.</p>
+    </div>
+    <div class="control-card">
+      <div class="stamp">Снимок данных: <b id="snapshot-date">7 сентября 2026</b></div>
+      <div class="stamp">Источник: <b>steamcommunity.com/market</b></div>
+      <button id="refresh-btn" onclick="refreshAll()">
+        <span class="spinner"></span>
+        <span id="refresh-label">Обновить данные</span>
+      </button>
+      <div id="status-line">Показаны данные снимка, зафиксированного при подготовке страницы.</div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="table-section">
+    <div class="legend" id="legend"></div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:28px">#</th>
+          <th>Предмет</th>
+          <th>Тип</th>
+          <th class="num">Цена</th>
+          <th class="num">Лотов в продаже</th>
+          <th class="num">Продажи<span class="live-dot" id="live-dot"></span></th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+  </section>
+
+  <footer class="notes">
+    <h2>Как читать эту таблицу</h2>
+    <ul>
+      <li><b>Фото предмета</b> — подгружается напрямую с CDN Steam (<code>community.steamstatic.com/economy/image/…</code>) в момент обновления страницы. Пока свежий запрос не выполнен (или если Steam не ответил), показан цветной значок редкости предмета вместо фото.</li>
+      <li><b>Цена</b> — стоимость самого дешёвого активного лота на Market на момент последнего обновления. Котировки меняются постоянно, в том числе за секунды между вашими обновлениями.</li>
+      <li><b>Лотов в продаже</b> — количество активных предложений на продажу. Публичного API с точным «числом продано за всё время» по каждому предмету у Steam нет, поэтому это наиболее близкий и надёжно доступный показатель ликвидности предмета.</li>
+      <li><b>Продажи</b> — объём продаж, который отдаёт публичный эндпоинт Steam <code>priceoverview</code> для конкретного предмета: обычно это <b>скользящее среднее число продаж за последние ~24 часа</b>. Для части неходовых предметов Steam этот показатель не отдаёт вообще — в таблице это помечено как «н/д».</li>
+      <li><b>Кнопка «Обновить данные»</b> реально обращается к Steam Community Market из вашего браузера в момент нажатия — через публичный CORS-прокси (Steam не разрешает браузерам стучаться в свой API напрямую с чужих доменов). Если прокси в этот момент недоступен или Steam ограничил частоту запросов, страница сообщит об этом и оставит последние успешно загруженные значения.</li>
+      <li>Отбор в топ-30 сделан по сортировке Market «Popularity» для Dota 2 — это в основном предметы, прошедшие Steam Workshop и добавленные Valve в игру (сеты внешности героев, тауны, сундуки).</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+const RARITY_COLORS = {
+  "Common":"var(--common)","Uncommon":"var(--uncommon)","Rare":"var(--rare)",
+  "Mythical":"var(--mythical)","Legendary":"var(--legendary)","Ancient":"var(--ancient)",
+  "Immortal":"var(--immortal)"
+};
+
+// Static snapshot, gathered at build time from steamcommunity.com/market (appid 570).
+// name, type, rarity, price(USD), qtyForSale, iconUrlHash (may be null -> fallback chip)
+const ITEMS = [
+["Beard of the Father","Wearable","Common",0.03,1763,"i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttydbPaERSR0Wqmu7LAocGIyi3kajH_DB0cOuOzSR5EJ98ZXL5FzkSlL3n4Lo-DBk4fetY5thIeKUCynFkb5w5LM5GivmkxgisT7SwtyuIniSPVQmW8N4TLMC4ESxl9HnMr_r-UWA3DVHU7sY"],
+["Hallowed Chest of the Diretide","Treasure chest","Rare",0.10,41118,"i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttydbPaERSR0Wqmu7LAocGJG51EejH-LGxsuyIGmS2lV98ZTg1V3uUxjll5Llr3Jk7OCvfKFSLPGBCWLelr4k57FtTnuwlhl_5m3UzIr9JX6TZwUoDcR4R-MI5hmwwYe1M-Pr4Bue1dwPZ1MPFw"],
+["Frostivus 2023 Treasure Chest","Treasure chest","Rare",0.11,37366,null],
+["Taunt: Check This Out!","Taunt","Rare",0.20,740,null],
+["Armor of the Icewrack Marauder","Armor","Rare",0.34,55,null],
+["Dead Reckoning Chest","Treasure chest","Rare",0.35,22986,null],
+["Judgement of the Fallen","Wearable","Immortal",0.47,845,null],
+["Dark Maw Inhibitor","Wearable","Immortal",0.58,512,null],
+["Emerald Conquest","Weapon","Immortal",0.84,265,null],
+["Ageless Heirlooms 2022","Priceless Treasure","Mythical",0.97,839,null],
+["Crownfall - Radiant Creeps","Misc","Legendary",0.98,344,null],
+["Emerald Subjugation","Head","Immortal",1.12,290,null],
+["Profane Union","Back","Immortal",1.39,252,null],
+["Bracers of the Cavern Luminar","Bracer","Immortal",1.61,822,null],
+["The Gaze of Scree'Auk - Dire Towers","Dire Towers","Legendary",1.70,389,null],
+["The Eyes of Avilliva - Radiant Towers","Radiant Towers","Legendary",1.86,200,null],
+["Immortal Treasure III 2019","Priceless Treasure","Immortal",2.21,257,null],
+["DPC 2022 Spring Lineage Treasure","Treasure chest","Mythical",2.66,192,null],
+["The Lightning Orchid","Hat","Immortal",3.26,283,null],
+["Golden Profane Union","Back","Immortal",3.27,93,null],
+["Inscribed Demon Eater - Head","Wearable","Mythical",3.45,39,null],
+["Taunt: Fiendish Swag!","Taunt","Rare",4.00,146,null],
+["Aghanim's 2021 Immortal Treasure","Treasure chest","Immortal",4.23,194,null],
+["The Abscesserator","Wearable","Immortal",5.56,129,null],
+["Hush of Eternal Night","Bundle","Mythical",5.63,34,null],
+["Origins of Faith","Armor","Immortal",6.38,83,null],
+["Etienne's Revenge","Wearable","Immortal",7.76,84,null],
+["Reaper's Wreath","Weapon","Immortal",11.98,197,null],
+["Inscribed Arms of Desolation","Arms","Immortal",15.46,56,null],
+["Arms of Desolation","Arms","Immortal",17.36,65,"i0CoZ81Ui0m-9KwlBY1L_18myuGuq1wfhWSaZgMttydbPaERSR0Wqmu7LAocGIyi3kajH-Xcws6uIkSR7FN78Mj1-FT0fhn0jZmv_DBW_M2qbbdiH_ySHGCVj-0k6bI7GXy1wB5x5mXRmdj4dXqTO1ciA5RxQeRb4EO9l9DgZu6x4wbAy9USE9E9UUw"],
+].sort((a,b)=>a[3]-b[3]);
+
+const CORS_PROXY = "https://api.allorigins.win/raw?url=";
+const APPID = 570;
+
+function iconUrl(hash){
+  return hash ? `https://community.steamstatic.com/economy/image/${hash}/96x96` : null;
+}
+function marketUrl(name){
+  return `https://steamcommunity.com/market/listings/${APPID}/${encodeURIComponent(name)}`;
+}
+function fmtInt(n){ return n.toLocaleString('ru-RU'); }
+function fmtPrice(n){ return '$' + n.toFixed(2); }
+
+function renderLegend(){
+  const el = document.getElementById('legend');
+  el.innerHTML = Object.entries(RARITY_COLORS).map(([name,color])=>
+    `<span><i style="background:${getComputedStyle(document.documentElement).getPropertyValue(color.match(/--[a-z]+/)[0])}"></i>${name}</span>`
+  ).join('');
+}
+
+function rowHtml(item, idx){
+  const [name, type, rarity, price, qty, hash] = item;
+  const img = iconUrl(hash);
+  const url = marketUrl(name);
+  const thumb = img
+    ? `<img src="${img}" alt="${name}" loading="lazy" onerror="this.parentElement.innerHTML='<span class=&quot;fallback-letter&quot;>${rarity[0]}</span>'; this.parentElement.style.background='${RARITY_COLORS[rarity]||'#888'}';">`
+    : `<span class="fallback-letter">${rarity[0]}</span>`;
+  const thumbBg = img ? '' : `style="background:${RARITY_COLORS[rarity]||'#888'}"`;
+  return `
+  <tr data-name="${name}">
+    <td class="rank">${idx+1}</td>
+    <td>
+      <div class="item-cell">
+        <div class="thumb" ${thumbBg} data-thumb>${thumb}</div>
+        <div>
+          <div class="item-name"><a href="${url}" target="_blank" rel="noopener">${name}</a></div>
+          <div class="item-sub">${rarity}<span class="rarity-pill" style="background:${RARITY_COLORS[rarity]||'#888'}">${rarity}</span></div>
+        </div>
+      </div>
+    </td>
+    <td data-label="Тип">${type}</td>
+    <td class="num price" data-price data-label="Цена">${fmtPrice(price)}</td>
+    <td class="num qty" data-qty data-label="Лотов в продаже">${fmtInt(qty)}</td>
+    <td class="num sales" data-sales data-label="Продажи"><span class="na">н/д</span></td>
+  </tr>`;
+}
+
+function renderTable(){
+  document.getElementById('table-body').innerHTML =
+    ITEMS.map((item,i)=>rowHtml(item,i)).join('');
+}
+
+function setStatus(msg, cls){
+  const el = document.getElementById('status-line');
+  el.textContent = msg;
+  el.className = cls || '';
+}
+
+async function fetchJSON(url){
+  const res = await fetch(CORS_PROXY + encodeURIComponent(url));
+  if(!res.ok) throw new Error('HTTP ' + res.status);
+  return res.json();
+}
+
+// Pull live price + quantity + real icon for each item via the public
+// (unauthenticated) search/render endpoint, matched by exact market name.
+async function refreshPricesAndIcons(){
+  const url = `https://steamcommunity.com/market/search/render/?query=&start=0&count=100&search_descriptions=0&sort_column=popular&sort_dir=desc&appid=${APPID}&norender=1&currency=1`;
+  const data = await fetchJSON(url);
+  if(!data || !data.success || !Array.isArray(data.results)) throw new Error('bad payload');
+  const byName = {};
+  data.results.forEach(r => { byName[r.hash_name || r.name] = r; });
+
+  ITEMS.forEach(item=>{
+    const name = item[0];
+    const match = byName[name];
+    const row = document.querySelector(`tr[data-name="${CSS.escape(name)}"]`);
+    if(!row) return;
+    if(match){
+      if(typeof match.sell_price === 'number'){
+        row.querySelector('[data-price]').textContent = fmtPrice(match.sell_price/100);
+      }
+      if(typeof match.sell_listings !== 'undefined'){
+        row.querySelector('[data-qty]').textContent = fmtInt(match.sell_listings);
+      }
+      const hash = match.asset_description && match.asset_description.icon_url;
+      if(hash){
+        const img = iconUrl(hash);
+        const thumb = row.querySelector('[data-thumb]');
+        thumb.style.background = 'transparent';
+        thumb.innerHTML = `<img src="${img}" alt="${name}" loading="lazy">`;
+      }
+    }
+  });
+}
+
+// Pull rough "units sold" via the priceoverview endpoint (Steam's own
+// ~24h moving volume figure), one item at a time, spaced out to be gentle
+// on the free CORS proxy. Progressive: fills in as each response arrives.
+async function refreshSalesVolume(){
+  const dot = document.getElementById('live-dot');
+  dot.classList.add('pulsing');
+  for(const item of ITEMS){
+    const name = item[0];
+    const row = document.querySelector(`tr[data-name="${CSS.escape(name)}"]`);
+    const cell = row ? row.querySelector('[data-sales]') : null;
+    try{
+      const url = `https://steamcommunity.com/market/priceoverview/?appid=${APPID}&currency=1&market_hash_name=${encodeURIComponent(name)}`;
+      const data = await fetchJSON(url);
+      if(data && data.success && data.volume){
+        cell.innerHTML = `<span class="sales-num">${fmtInt(parseInt(data.volume.replace(/[^\d]/g,''),10))}</span><span class="sales-period">за ~24 часа</span>`;
+      } else {
+        cell.innerHTML = `<span class="na">н/д</span>`;
+      }
+    }catch(e){
+      if(cell) cell.innerHTML = `<span class="na">н/д</span>`;
+    }
+    await new Promise(r=>setTimeout(r, 250));
+  }
+  dot.classList.remove('pulsing');
+}
+
+async function refreshAll(){
+  const btn = document.getElementById('refresh-btn');
+  const label = document.getElementById('refresh-label');
+  btn.disabled = true; btn.classList.add('loading');
+  label.textContent = 'Обновляем…';
+  setStatus('Стучимся в Steam Community Market через публичный CORS-прокси…');
+
+  let priceOk = false;
+  try{
+    await refreshPricesAndIcons();
+    priceOk = true;
+    setStatus('Цены, лоты и фото обновлены. Догружаем данные о продажах по каждому предмету…');
+  }catch(e){
+    setStatus('Не удалось получить свежие цены/фото (прокси или Steam недоступны). Показаны последние известные значения.', 'err');
+  }
+
+  try{
+    await refreshSalesVolume();
+    setStatus(priceOk
+      ? 'Готово: цены, лоты, фото и объём продаж обновлены только что.'
+      : 'Объём продаж обновлён, но цены/фото — нет (см. выше).', priceOk ? 'ok' : 'err');
+  }catch(e){
+    if(priceOk) setStatus('Цены и фото обновлены, но данные о продажах — нет (Steam ограничил запросы).', 'err');
+  }
+
+  document.getElementById('snapshot-date').textContent =
+    new Date().toLocaleString('ru-RU', {day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit'});
+
+  btn.disabled = false; btn.classList.remove('loading');
+  label.textContent = 'Обновить данные';
+}
+
+renderLegend();
+renderTable();
+</script>
+</body>
+</html>
