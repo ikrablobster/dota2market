@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>CG Training — Charles Glass Method</title>
+<style>
+  :root{
+    --bg:#090b0f;
+    --panel:#11151b;
+    --panel2:#171c24;
+    --line:#252c36;
+    --text:#f5f7fa;
+    --muted:#9aa4b2;
+    --accent:#b7ff3c;
+    --accent2:#68a7ff;
+    --danger:#ff625f;
+    --gold:#ffc857;
+    --radius:24px;
+    --shadow:0 28px 70px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:
+      radial-gradient(circle at 15% 0%,rgba(183,255,60,.10),transparent 28%),
+      radial-gradient(circle at 90% 10%,rgba(104,167,255,.08),transparent 30%),
+      var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  a{color:inherit;text-decoration:none}
+  .wrap{width:min(1180px,calc(100% - 32px));margin:auto}
+  .nav{
+    position:sticky;top:0;z-index:20;
+    backdrop-filter:blur(18px);
+    background:rgba(9,11,15,.72);
+    border-bottom:1px solid rgba(255,255,255,.06);
+  }
+  .navin{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+  .brand{display:flex;align-items:center;gap:12px;font-weight:800;letter-spacing:.04em}
+  .mark{
+    width:36px;height:36px;border-radius:12px;background:var(--accent);
+    display:grid;place-items:center;color:#0a0d10;font-weight:900;
+    box-shadow:0 0 0 6px rgba(183,255,60,.08);
+  }
+  .navlinks{display:flex;gap:24px;color:var(--muted);font-size:14px}
+  .navlinks a:hover{color:var(--text)}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:10px;
+    min-height:48px;padding:0 20px;border-radius:14px;border:1px solid var(--line);
+    background:var(--panel);font-weight:750;transition:.2s ease;
+  }
+  .btn:hover{transform:translateY(-2px);border-color:#3b4552}
+  .btn.primary{background:var(--accent);color:#0a0d10;border-color:transparent}
+  .hero{padding:82px 0 54px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+  .eyebrow{display:flex;align-items:center;gap:10px;color:var(--accent);font-size:13px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+  .dot{width:8px;height:8px;background:var(--accent);border-radius:99px;box-shadow:0 0 18px var(--accent)}
+  h1{font-size:clamp(46px,7vw,86px);line-height:.95;margin:18px 0 24px;letter-spacing:-.055em}
+  .lead{font-size:19px;color:#b8c0ca;max-width:620px}
+  .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+  .hero-meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:32px;color:var(--muted);font-size:14px}
+  .hero-meta b{display:block;color:var(--text);font-size:24px}
+  .phone{
+    width:min(430px,100%);margin:auto;padding:10px;border-radius:38px;
+    background:#06080b;border:1px solid #2d3540;box-shadow:var(--shadow);
+  }
+  .phone-screen{
+    border-radius:30px;overflow:hidden;background:
+      radial-gradient(circle at 90% 0%,rgba(183,255,60,.13),transparent 32%),#10141a;
+    border:1px solid rgba(255,255,255,.045);
+  }
+  .phone-top{padding:20px 22px 10px;display:flex;justify-content:space-between;align-items:center;color:#8893a1;font-size:12px}
+  .app{padding:12px 22px 24px}
+  .app h3{font-size:12px;color:var(--muted);margin:0 0 5px;letter-spacing:.12em}
+  .app h2{font-size:27px;margin:0 0 16px}
+  .tag{display:inline-flex;background:rgba(183,255,60,.1);color:var(--accent);padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800}
+  .start-card{margin-top:18px;padding:20px;border-radius:22px;background:linear-gradient(145deg,#1a2028,#11151b);border:1px solid #2b333e}
+  .start-card .big{font-size:25px;font-weight:850;margin:8px 0}
+  .row{display:flex;justify-content:space-between;gap:12px;align-items:center}
+  .mini{font-size:12px;color:var(--muted)}
+  .play{margin-top:18px;width:100%;height:50px;border:0;border-radius:14px;background:var(--accent);font-weight:850;color:#0a0d10}
+  .stats3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .stat{background:#0d1116;border:1px solid #242b34;padding:12px;border-radius:14px}
+  .stat b{font-size:17px;display:block}.stat span{font-size:10px;color:var(--muted)}
+  .progress-card{margin-top:12px;padding:15px;border-radius:16px;background:#0d1116;border:1px solid #242b34}
+  .bar{height:7px;background:#252c35;border-radius:99px;overflow:hidden;margin-top:10px}.bar span{display:block;height:100%;width:68%;background:var(--accent)}
+  section{padding:74px 0}
+  .section-head{max-width:760px;margin-bottom:32px}
+  .kicker{color:var(--accent);font-size:12px;font-weight:850;letter-spacing:.12em;text-transform:uppercase}
+  h2.section-title{font-size:clamp(34px,5vw,58px);line-height:1.02;letter-spacing:-.04em;margin:10px 0 14px}
+  .section-sub{color:var(--muted);font-size:17px}
+  .screen-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:22px}
+  .screen-card{
+    background:linear-gradient(180deg,#151a21,#10141a);
+    border:1px solid var(--line);border-radius:var(--radius);padding:22px;min-height:410px;
+    box-shadow:0 16px 40px rgba(0,0,0,.18);
+  }
+  .screen-card.wide{grid-column:1/-1}
+  .screen-card .screen-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .screen-card .num{font-size:12px;color:var(--muted);font-weight:800}
+  .screen-card h3{margin:0;font-size:22px}
+  .daycards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .day{padding:16px;border-radius:18px;background:#0c1015;border:1px solid #242b34}
+  .day.active{border-color:rgba(183,255,60,.55);box-shadow:inset 0 0 0 1px rgba(183,255,60,.16)}
+  .day small{color:var(--accent);font-weight:800}
+  .day h4{font-size:16px;margin:9px 0 16px}
+  .day p{font-size:12px;color:var(--muted);margin:4px 0}
+  .volume{margin-top:16px;padding:16px;border:1px solid #252d37;background:#0c1015;border-radius:18px}
+  .vrow{display:grid;grid-template-columns:110px 1fr 28px;gap:10px;align-items:center;margin:10px 0;font-size:12px}
+  .vb{height:6px;background:#232a33;border-radius:9px;overflow:hidden}.vb span{height:100%;display:block;background:var(--accent)}
+  .exercise{display:grid;grid-template-columns:1.2fr .8fr;gap:16px}
+  .exbox{padding:16px;border-radius:18px;background:#0c1015;border:1px solid #252d37}
+  .sets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .set{padding:10px;border-radius:12px;background:#151b22;border:1px solid #2c3540;font-size:12px}
+  .set b{display:block;font-size:15px;margin-bottom:4px}
+  .tempo{font-size:32px;font-weight:900;letter-spacing:.03em;margin:12px 0;color:var(--accent)}
+  .tips{display:grid;gap:8px;margin-top:12px}
+  .tip{padding:11px 12px;border-radius:12px;background:#151b22;font-size:12px;color:#c5ccd5}
+  .rir{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:14px}
+  .rir div{padding:12px;border-radius:13px;background:#0c1015;border:1px solid #242b34;text-align:center}
+  .rir b{font-size:20px;display:block}.rir span{font-size:10px;color:var(--muted)}
+  .chart{height:170px;margin-top:20px;position:relative;border-left:1px solid #2a323c;border-bottom:1px solid #2a323c}
+  .chart:before,.chart:after{content:"";position:absolute;left:0;right:0;border-top:1px dashed #20262e}
+  .chart:before{top:33%}.chart:after{top:66%}
+  .line{
+    position:absolute;left:7%;right:6%;bottom:18%;height:105px;
+    clip-path:polygon(0 82%,16% 69%,34% 71%,52% 50%,72% 32%,100% 8%,100% 13%,72% 37%,52% 56%,34% 76%,16% 74%,0 88%);
+    background:var(--accent);
+  }
+  .glass-principles{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  .principle{padding:18px;border:1px solid #262d37;border-radius:18px;background:#0c1015}
+  .principle b{display:block;color:var(--accent);font-size:12px;letter-spacing:.1em;margin-bottom:8px}
+  .principle h4{margin:0 0 7px}.principle p{margin:0;color:var(--muted);font-size:13px}
+  .quote{
+    margin-top:18px;padding:22px;border-radius:18px;background:rgba(255,200,87,.06);
+    border:1px solid rgba(255,200,87,.22);color:#f1e3bd
+  }
+  .cta{
+    padding:34px;border-radius:30px;border:1px solid #2b333d;
+    background:linear-gradient(140deg,rgba(183,255,60,.12),rgba(104,167,255,.06) 45%,#11151b);
+    display:flex;justify-content:space-between;align-items:center;gap:28px
+  }
+  .cta h3{font-size:34px;margin:0 0 8px;letter-spacing:-.035em}
+  .cta p{margin:0;color:var(--muted)}
+  footer{padding:28px 0 50px;color:#77808b;font-size:13px}
+  .footerin{display:flex;justify-content:space-between;gap:20px;border-top:1px solid #20262e;padding-top:24px}
+  @media (max-width:900px){
+    .hero-grid,.exercise{grid-template-columns:1fr}
+    .hero{text-align:left;padding-top:56px}
+    .screen-grid{grid-template-columns:1fr}
+    .screen-card.wide{grid-column:auto}
+    .daycards,.glass-principles{grid-template-columns:1fr}
+    .navlinks{display:none}
+  }
+  @media (max-width:560px){
+    .wrap{width:min(100% - 20px,1180px)}
+    .navin{height:64px}
+    .nav .btn{display:none}
+    h1{font-size:48px}
+    .hero-meta{gap:18px}
+    .screen-card{padding:16px;border-radius:18px}
+    .stats3,.rir{grid-template-columns:repeat(2,1fr)}
+    .sets{grid-template-columns:1fr}
+    .cta{align-items:flex-start;flex-direction:column}
+  }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="wrap navin">
+    <a class="brand" href="#top"><span class="mark">CG</span> CG TRAINING</a>
+    <div class="navlinks">
+      <a href="#screens">Экраны</a>
+      <a href="#method">Методика</a>
+      <a href="#progress">Прогресс</a>
+    </div>
+    <a class="btn" href="#screens">Смотреть программу</a>
+  </div>
+</nav>
+
+<main id="top">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <div class="eyebrow"><span class="dot"></span> Charles Glass inspired training</div>
+        <h1>Train smarter.<br>Feel every rep.</h1>
+        <p class="lead">
+          Трёхдневная программа гипертрофии, собранная вокруг ключевых принципов Чарльза Гласса:
+          контроль, угол, стабильность, сокращение и прогресс без погони за весом.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#screens">Открыть экраны</a>
+          <a class="btn" href="#method">Принципы Glass</a>
+        </div>
+        <div class="hero-meta">
+          <div><b>3</b> дня / неделю</div>
+          <div><b>8</b> недель</div>
+          <div><b>60–80</b> минут</div>
+        </div>
+      </div>
+
+      <div class="phone">
+        <div class="phone-screen">
+          <div class="phone-top"><span>22:14</span><span>● ● ●</span></div>
+          <div class="app">
+            <h3>WEEK 4 / 8</h3>
+            <div class="row"><h2>TODAY — DAY 2</h2><span class="tag">NEXT</span></div>
+            <div class="start-card">
+              <div class="mini">BACK + HAMSTRINGS + BICEPS</div>
+              <div class="big">21 working sets</div>
+              <div class="stats3">
+                <div class="stat"><b>7</b><span>exercises</span></div>
+                <div class="stat"><b>70</b><span>minutes</span></div>
+                <div class="stat"><b>1–2</b><span>target RIR</span></div>
+              </div>
+              <button class="play">START WORKOUT →</button>
+            </div>
+            <div class="progress-card">
+              <div class="row"><b>Weekly progress</b><span class="mini">68%</span></div>
+              <div class="bar"><span></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screens">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Product screens</div>
+        <h2 class="section-title">Вся программа — как приложение для зала</h2>
+        <p class="section-sub">Минимум текста, максимум полезного контекста: упражнение, техника, RIR, темп, прогресс и следующий шаг.</p>
+      </div>
+
+      <div class="screen-grid">
+        <article class="screen-card wide">
+          <div class="screen-head"><div><div class="num">01 / DASHBOARD</div><h3>Неделя и тренировочные дни</h3></div><span class="tag">WEEK 4</span></div>
+          <div class="daycards">
+            <div class="day active"><small>DAY 1</small><h4>Chest + Quads</h4><p>22 подхода</p><p>65–75 минут</p></div>
+            <div class="day"><small>DAY 2</small><h4>Back + Hamstrings</h4><p>21 подход</p><p>65–75 минут</p></div>
+            <div class="day"><small>DAY 3</small><h4>Legs + Shoulders</h4><p>23 подхода</p><p>70–80 минут</p></div>
+          </div>
+          <div class="volume">
+            <b>Weekly volume</b>
+            <div class="vrow"><span>Грудь</span><div class="vb"><span style="width:88%"></span></div><b>12</b></div>
+            <div class="vrow"><span>Спина</span><div class="vb"><span style="width:88%"></span></div><b>12</b></div>
+            <div class="vrow"><span>Квадрицепс</span><div class="vb"><span style="width:74%"></span></div><b>10</b></div>
+            <div class="vrow"><span>Дельты</span><div class="vb"><span style="width:66%"></span></div><b>9</b></div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <div class="screen-head"><div><div class="num">02 / WORKOUT</div><h3>Карточка упражнения</h3></div><span class="tag">RIR 0–2</span></div>
+          <div class="exercise">
+            <div class="exbox">
+              <span class="mini">EXERCISE 02</span>
+              <h3 style="margin:5px 0 6px">Hack Squat</h3>
+              <div class="mini">3 × 8–12 · отдых 2:00–2:30</div>
+              <div class="sets">
+                <div class="set"><b>100 × 12</b>RIR 2</div>
+                <div class="set"><b>100 × 11</b>RIR 1</div>
+                <div class="set"><b>100 × 9</b>RIR 0–1</div>
+              </div>
+              <div class="tempo">3s ↓ · 1s ↑</div>
+            </div>
+            <div class="exbox">
+              <b>Glass cues</b>
+              <div class="tips">
+                <div class="tip">✓ Колени по линии стоп</div>
+                <div class="tip">✓ Без отбива снизу</div>
+                <div class="tip">✓ Таз не отрывать</div>
+                <div class="tip">⚠ Вес снижать при потере контроля</div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <div class="screen-head"><div><div class="num">03 / INTENSITY</div><h3>RIR без гаданий</h3></div></div>
+          <p class="mini">Каждый сет сразу показывает целевую интенсивность.</p>
+          <div class="rir">
+            <div><b>3</b><span>легко</span></div>
+            <div><b>2</b><span>рабочий</span></div>
+            <div><b>1</b><span>тяжело</span></div>
+            <div style="border-color:rgba(255,98,95,.45)"><b style="color:var(--danger)">0</b><span>отказ</span></div>
+          </div>
+          <div class="volume" style="margin-top:20px">
+            <div class="vrow"><span>SET 1</span><div class="vb"><span style="width:55%"></span></div><b>RIR 2</b></div>
+            <div class="vrow"><span>SET 2</span><div class="vb"><span style="width:75%"></span></div><b>RIR 1</b></div>
+            <div class="vrow"><span>SET 3</span><div class="vb"><span style="width:95%;background:var(--danger)"></span></div><b>0–1</b></div>
+          </div>
+        </article>
+
+        <article class="screen-card" id="progress">
+          <div class="screen-head"><div><div class="num">04 / PROGRESS</div><h3>Рост рабочих весов</h3></div><span class="tag">+8.3%</span></div>
+          <div class="mini">Smith Incline Press · последние 6 тренировок</div>
+          <div class="chart"><div class="line"></div></div>
+          <div class="stats3">
+            <div class="stat"><b>+6.2%</b><span>вес</span></div>
+            <div class="stat"><b>+17%</b><span>повторы</span></div>
+            <div class="stat"><b>+14%</b><span>volume load</span></div>
+          </div>
+        </article>
+
+        <article class="screen-card">
+          <div class="screen-head"><div><div class="num">05 / TECHNIQUE</div><h3>Техника в одном экране</h3></div><span class="tag">GLASS TIP</span></div>
+          <div class="exbox">
+            <span class="mini">SMITH INCLINE PRESS</span>
+            <div style="font-size:50px;font-weight:900;margin:12px 0;color:var(--accent)">20–30°</div>
+            <div class="mini">Наклон скамьи · локти слегка под корпусом · без толчка плечами</div>
+          </div>
+          <div class="quote">
+            <b>CONTROL → ANGLE → CONTRACTION</b><br>
+            Сначала контроль траектории. Затем угол. Потом максимальное сокращение целевой мышцы.
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="method">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">The Glass Method</div>
+        <h2 class="section-title">Шесть правил, вокруг которых построен интерфейс</h2>
+      </div>
+      <div class="glass-principles">
+        <div class="principle"><b>01 / CONTROL</b><h4>Контролируй вес</h4><p>Негативная фаза 2–3 секунды. Никакого падения и отбива.</p></div>
+        <div class="principle"><b>02 / ANGLE</b><h4>Меняй угол, не упражнение</h4><p>Малые изменения положения тела меняют распределение нагрузки.</p></div>
+        <div class="principle"><b>03 / CONTRACTION</b><h4>Сокращай мышцу</h4><p>Цель — не просто завершить повтор, а удержать напряжение там, где нужно.</p></div>
+        <div class="principle"><b>04 / STABILITY</b><h4>Убери лишнее движение</h4><p>Стабильный корпус уменьшает читинг и повышает локальную нагрузку.</p></div>
+        <div class="principle"><b>05 / LOAD</b><h4>Вес — инструмент</h4><p>Не жертвуем амплитудой и контролем ради цифры на тренажёре.</p></div>
+        <div class="principle"><b>06 / INTENSITY</b><h4>0–2 RIR</h4><p>Рабочие подходы постепенно приближаются к техническому отказу.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap">
+      <div class="cta">
+        <div>
+          <div class="kicker">CG Training</div>
+          <h3>Тренировка, которую удобно открыть прямо в зале.</h3>
+          <p>Без перегруженных таблиц: только сегодняшний план, техника и прогресс.</p>
+        </div>
+        <a class="btn primary" href="#top">Вернуться наверх ↑</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap footerin">
+    <span>CG TRAINING — concept landing</span>
+    <span>Charles Glass inspired · 3 days / week</span>
+  </div>
+</footer>
+
+</body>
+</html>
